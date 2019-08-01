@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
+const nodemailer = require('nodemailer');
 
 const options = {
   uri: "https://www.autotrader.co.uk/bike-search?sort=price-asc&radius=1500&postcode=ox143uu&make=YAMAHA&model=MT-07&price-from=3500&price-to=4500&maximum-mileage=15000&page=1",
@@ -29,11 +30,40 @@ rp(options.uri)
       vehInfo.push({ info: data.join(' '), loc: location, price: price });
     });
     
-    console.log(vehInfo);
+    sendEmail(vehInfo)
   })
   .catch((err) => {
     console.log(err);
   });
+  
+  
+  function sendEmail(veh) {
+    
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '',
+        pass: ''
+      }
+    });
+    
+    const mailOptions = {
+      from: '',
+      to: '',
+      subject: 'Yamaha MT',
+      text: JSON.stringify(veh)
+    }
+    
+    transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+    
+    
+  }
   
   
   // .listing-key-spec  - information about motorcycle
@@ -42,3 +72,5 @@ rp(options.uri)
   // ul .search-page__results
   
   // .search-form__count
+  
+ // <img data-label="search appearance click " src="https://m.atcdn.co.uk/a/media/w260h196pd8d8d8/25a038d23fe549c6b5186c381d64452b.jpg">
